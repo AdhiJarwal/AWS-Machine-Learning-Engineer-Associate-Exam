@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Machine Learning Engineer Associate Quiz</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <h1>AWS Machine Learning Engineer Associate</h1>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="start-screen">
+        <h2>Welcome to the AWS Machine Learning Engineer Exam</h2>
+        <p>This quiz contains 114 questions to test your knowledge of AWS AI/ML services.</p>
+        <p>You'll have unlimited time to complete the quiz. Your time will be recorded.</p>
+        <button id="start-btn" class="start-btn">Start Quiz</button>
+    </div>
+
+    <!-- Quiz Container - Initially Hidden -->
+    <div id="quiz-container" class="quiz-container" style="display: none;">
+        <div class="quiz-header">
+            <div class="progress-container">
+                <div>Question <span id="current-question"></span> of <span id="total-questions"></span></div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+
+            <div class="timer-container">
+                <button id="pause-btn" class="pause-btn">⏸️</button>
+                Time: <span id="timer">00:00:00</span>
+            </div>
+        </div>
+
+        <div id="question-container" class="question-card">
+            <div id="question-text" class="question-text"></div>
+            <ul id="options" class="options"></ul>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn" disabled>Previous</button>
+            <button id="next-btn" disabled>Next</button>
+            <button id="submit-btn" style="display: none;">Submit Quiz</button>
+        </div>
+    </div>
+
+    <!-- Results Screen - Initially Hidden -->
+    <div id="results-screen" class="results-screen" style="display: none;">
+        <h2>Quiz Results</h2>
+        <div id="results-summary" class="results-summary">
+            <div class="score-container">
+                <div class="score-label">Your Score:</div>
+                <div id="final-score" class="final-score">0/150</div>
+            </div>
+            <div class="time-container">
+                <div class="time-label">Time Taken:</div>
+                <div id="final-time" class="final-time">00:00:00</div>
+            </div>
+            <div class="details-container">
+                <div class="details-label">Details:</div>
+                <div id="correct-count" class="detail">Correct Answers: 0</div>
+                <div id="incorrect-count" class="detail">Incorrect Answers: 0</div>
+                <div id="percentage" class="detail">Percentage: 0%</div>
+            </div>
+        </div>
+        <button id="retake-btn" class="retake-btn">Retake Quiz</button>
+    </div>
+
+    <!-- Load scripts -->
+    <script src="js/quiz-data.js"></script>
+    <script src="js/quiz-ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
