@@ -106,11 +106,25 @@ function showResultsScreen() {
 }
 
 function initQuiz() {
-    // Reset variables
-    currentQuestionIndex = 0;
-    selectedAnswers = [];
-    answeredQuestions = [];
-    score = 0;
+    // Check for saved progress
+    const savedProgress = localStorage.getItem('aws-quiz-progress');
+    if (savedProgress && confirm('Resume previous quiz session?')) {
+        const progress = JSON.parse(savedProgress);
+        currentQuestionIndex = progress.currentQuestionIndex || 0;
+        selectedAnswers = progress.selectedAnswers || [];
+        answeredQuestions = progress.answeredQuestions || [];
+        score = progress.score || 0;
+        seconds = progress.seconds || 0;
+        minutes = progress.minutes || 0;
+        hours = progress.hours || 0;
+    } else {
+        // Reset variables
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        answeredQuestions = [];
+        score = 0;
+        localStorage.removeItem('aws-quiz-progress');
+    }
 
     // Get quiz data
     // We'll assume shuffledQuizData comes from quiz-data.js
@@ -152,8 +166,14 @@ function displayQuestion(index) {
     // Update progress bar
     progressBar.style.width = `${((index + 1) / shuffledQuizData.length) * 100}%`;
 
-    // Display question text
+    // Display question text with status indicator
     questionText.textContent = question.question;
+    
+    // Add status indicator
+    const statusIndicator = document.createElement('span');
+    statusIndicator.className = `question-status ${answeredQuestions[index] ? 'answered' : 'unanswered'}`;
+    statusIndicator.title = answeredQuestions[index] ? 'Question answered' : 'Question not answered';
+    questionText.appendChild(statusIndicator);
 
     // Clear previous options
     optionsContainer.innerHTML = '';
@@ -161,11 +181,17 @@ function displayQuestion(index) {
     // Determine if this is a multi-select question
     const isMultiSelect = Array.isArray(question.rightAnswer);
 
+    // Clear any existing multi-select indicator
+    const existingIndicator = questionContainer.querySelector('.multi-select-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+
     // Add multi-select indicator if needed
-    if (isMultiSelect && !answeredQuestions[index]) {
+    if (isMultiSelect) {
         const indicator = document.createElement('div');
         indicator.className = 'multi-select-indicator';
-        questionText.appendChild(indicator);
+        questionContainer.appendChild(indicator);
     }
 
     // Display options
@@ -242,8 +268,8 @@ function displayQuestion(index) {
                     if (checkbox) checkbox.innerHTML = '☑';
                 }
             } else {
-                // Single select behavior
-                document.querySelectorAll('.option').forEach(opt => {
+                // Single select behavior - scope to current question only
+                optionsContainer.querySelectorAll('.option').forEach(opt => {
                     opt.classList.remove('selected');
                 });
                 optionElement.classList.add('selected');
@@ -327,8 +353,11 @@ function checkAnswer(questionIndex, selectedOptionIndex) {
         score++;
     }
 
+    // Save progress
+    saveProgress();
+
     // Highlight correct and incorrect options
-    const options = document.querySelectorAll('.option');
+    const options = optionsContainer.querySelectorAll('.option');
     options.forEach((option, index) => {
         if (index === selectedOptionIndex) {
             if (correct) {
@@ -379,8 +408,11 @@ function checkMultiAnswer(questionIndex, selectedOptionIndices) {
         score++;
     }
 
+    // Save progress
+    saveProgress();
+
     // Highlight correct and incorrect options
-    const options = document.querySelectorAll('.option');
+    const options = optionsContainer.querySelectorAll('.option');
     options.forEach((option, index) => {
         const optionText = question.options[index];
         if (question.rightAnswer.includes(optionText)) {
@@ -457,8 +489,8 @@ function updateButtonStates() {
         return;
     }
 
-    nextButton.disabled = !answeredQuestions[currentQuestionIndex] &&
-        currentQuestionIndex < shuffledQuizData.length - 1;
+    // Allow free navigation - users can skip questions
+    nextButton.disabled = currentQuestionIndex >= shuffledQuizData.length - 1;
 
     // Enable submit button on last question if all questions are answered
     if (currentQuestionIndex === shuffledQuizData.length - 1) {
@@ -472,6 +504,11 @@ function allQuestionsAnswered() {
 }
 
 function startTimer() {
+    // Clear any existing timer first
+    if (timerInterval) {
+        clearInterval(timerInterval);
+    }
+    
     // Reset timer variables
     seconds = 0;
     minutes = 0;
@@ -519,7 +556,8 @@ function togglePause() {
         pauseButton.textContent = "▶️";
 
         // Disable all interactive elements
-        document.querySelectorAll('.option').forEach(opt => {
+        const currentOptions = optionsContainer.querySelectorAll('.option');
+        currentOptions.forEach(opt => {
             opt.style.pointerEvents = 'none';
         });
 
@@ -553,7 +591,8 @@ function togglePause() {
         pauseButton.textContent = "⏸️";
 
         // Re-enable interactive elements
-        document.querySelectorAll('.option').forEach(opt => {
+        const currentOptions = optionsContainer.querySelectorAll('.option');
+        currentOptions.forEach(opt => {
             opt.style.pointerEvents = 'auto';
         });
 
@@ -576,6 +615,12 @@ function shuffleArray(array) {
 
 // Setup event listeners
 function setupEventListeners() {
+    // Add null checks for safety
+    if (!startButton || !retakeButton || !submitButton || !prevButton || !nextButton || !pauseButton) {
+        console.error('Required DOM elements not found');
+        return;
+    }
+
     // Start button
     startButton.addEventListener('click', () => {
         showQuizScreen();
@@ -590,30 +635,94 @@ function setupEventListeners() {
 
     // Submit button
     submitButton.addEventListener('click', () => {
+        clearProgress();
         showResultsScreen();
     });
 
-    // Navigation buttons
+    // Navigation buttons - simplified without redundant checks
     prevButton.addEventListener('click', () => {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            displayQuestion(currentQuestionIndex);
-        }
+        currentQuestionIndex--;
+        displayQuestion(currentQuestionIndex);
     });
 
     nextButton.addEventListener('click', () => {
-        if (currentQuestionIndex < shuffledQuizData.length - 1) {
-            currentQuestionIndex++;
-            displayQuestion(currentQuestionIndex);
-        }
+        currentQuestionIndex++;
+        displayQuestion(currentQuestionIndex);
     });
 
     // Pause button
     pauseButton.addEventListener('click', togglePause);
+
+    // Reset button
+    const resetButton = document.getElementById('reset-btn');
+    if (resetButton) {
+        resetButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset the quiz? All progress will be lost.')) {
+                clearProgress();
+                showStartScreen();
+            }
+        });
+    }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
+    initSettings();
     showStartScreen();
 });
+// Save progress function
+function saveProgress() {
+    const progress = {
+        currentQuestionIndex,
+        selectedAnswers,
+        answeredQuestions,
+        score,
+        seconds,
+        minutes,
+        hours
+    };
+    localStorage.setItem('aws-quiz-progress', JSON.stringify(progress));
+}
+
+// Clear progress function
+function clearProgress() {
+    localStorage.removeItem('aws-quiz-progress');
+}
+// Settings functionality
+function initSettings() {
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsContent = document.getElementById('settings-content');
+    const themeSelect = document.getElementById('theme-select');
+    const fontSizeSelect = document.getElementById('font-size-select');
+
+    if (!settingsBtn || !settingsContent || !themeSelect || !fontSizeSelect) return;
+
+    // Toggle settings panel
+    settingsBtn.addEventListener('click', () => {
+        const isVisible = settingsContent.style.display !== 'none';
+        settingsContent.style.display = isVisible ? 'none' : 'block';
+    });
+
+    // Theme change
+    themeSelect.addEventListener('change', (e) => {
+        const theme = e.target.value;
+        document.body.setAttribute('data-theme', theme);
+    });
+
+    // Font size change
+    fontSizeSelect.addEventListener('change', (e) => {
+        const fontSize = e.target.value;
+        if (fontSize === 'small') {
+            document.body.style.fontSize = '14px';
+            document.body.style.setProperty('--base-font-size', '14px');
+        } else if (fontSize === 'large') {
+            document.body.style.fontSize = '18px';
+            document.body.style.setProperty('--base-font-size', '18px');
+        } else {
+            document.body.style.fontSize = '16px';
+            document.body.style.setProperty('--base-font-size', '16px');
+        }
+    });
+}
+

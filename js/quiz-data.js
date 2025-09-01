@@ -48,7 +48,7 @@ const quizData = [
             "D. B, C, A",
             "E. C, A, B"
         ],
-        rightAnswer: ["B. D, E, B"]
+        rightAnswer: "B. D, E, B"
     },
     {
         question: "An ML engineer needs to use Amazon SageMaker Feature Store to create and manage features to train a model. Select and order the steps from the following list to create and use the features in Feature Store. Each step should be selected one time. (Select and order three. A. Access the store to build datasets for training. B. Create a feature group. C. Ingest the records.)",
@@ -57,7 +57,7 @@ const quizData = [
             "B. B, A, C",
             "C. C, A, B",
         ],
-        rightAnswer: ["A. B, C, A"]
+        rightAnswer: "A. B, C, A"
     },
     {
         question: "A company wants to host an ML model on Amazon SageMaker. An ML engineer is configuring a continuous integration and continuous delivery (CI/CD) pipeline in AWS CodePipeline to deploy the model. The pipeline must run automatically when new training data for the model is uploaded to an Amazon S3 bucket. Select and order the pipeline's correct steps from the following list. Each step should be selected one time or not at all. (Select and order three. A. An S3 event notification invokes the pipeline when new data is uploaded. B. S3 Lifecycle rule invokes the pipeline when new data is uploaded. C. SageMaker retrains the model by using the data in the S3 bucket. D. The pipeline deploys the model to a SageMaker endpoint. E. The pipeline deploys the model to SageMaker Model Registry.)",
@@ -68,7 +68,7 @@ const quizData = [
             "D. E, C, A",
             "E. C, A, D"
         ],
-        rightAnswer: ["A. A, C, D"]
+        rightAnswer: "A. A, C, D"
     },
     {
         question: "An ML engineer is building a generative AI application on Amazon Bedrock by using large language models (LLMs). Select the correct generative AI term from the following list for each description. Each term should be selected one time or not at all. (Select three.) Text representation of basic units of data processed by LLMs, High-dimensional vectors that contain the semantic meaning of text, Enrichment of information from additional data sources to improve a generated response. A. Embedding, B. Retrieval Augmented Generation (RAG), C. Temperature, D. Token",
@@ -78,7 +78,7 @@ const quizData = [
             "C. A, B, D",
             "D. D, A, B",
         ],
-        rightAnswer: ["D. D, A, B"]
+        rightAnswer: "D. D, A, B"
     },
     {
         question: "An ML engineer is working on an ML model to predict the prices of similarly sized homes. The model will base predictions on several features. The ML engineer will use the following feature engineering techniques to estimate the prices of the homes: City (name), Type_year (type of home and year the home was built), Size of the building (square feet or square meters). Select the correct feature engineering techniques for the following list of features. Each feature engineering technique should be selected one time or not at all (Select three.) A. Logarithmic transformation, B. Standardized distribution, C. One-hot encoding, D. Feature splitting",
@@ -88,7 +88,7 @@ const quizData = [
             "C. D, A, C",
             "D. A, B, C",
         ],
-        rightAnswer: ["B. C, A, B"]
+        rightAnswer: "B. C, A, B"
     },
     {
         question: "An ML engineer is developing a fraud detection model on AWS. The training dataset includes transaction logs, customer profiles, and tables from an on-premises MySQL database. The transaction logs and customer profiles are stored in Amazon S3. The dataset has a class imbalance that affects the learning of the model's algorithm. Additionally, many of the features have interdependencies. The algorithm is not capturing all the desired underlying patterns in the data. Which AWS service or feature can aggregate the data from the various data sources?",

@@ -9,7 +9,33 @@
 </head>
 
 <body>
-    <h1>AWS Machine Learning Engineer Associate</h1>
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="settings-panel">
+        <button id="settings-btn" class="settings-btn">⚙️</button>
+        <div id="settings-content" class="settings-content" style="display: none;">
+            <h3>Settings</h3>
+            <div class="setting-group">
+                <label>Theme:</label>
+                <select id="theme-select">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>Font Size:</label>
+                <select id="font-size-select">
+                    <option value="small">Small</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="large">Large</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-section">
+        <h1>AWS Machine Learning Engineer Associate</h1>
+        <p class="created-by">- created by Adhiraj Jarwal</p>
+    </div>
 
     <!-- Start Screen -->
     <div id="start-screen" class="start-screen">
@@ -30,6 +56,7 @@
             </div>
 
             <div class="timer-container">
+                <button id="reset-btn" class="reset-btn">🔄</button>
                 <button id="pause-btn" class="pause-btn">⏸️</button>
                 Time: <span id="timer">00:00:00</span>
             </div>
