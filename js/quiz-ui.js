@@ -330,7 +330,7 @@ function displayQuestion(index) {
     if (index === shuffledQuizData.length - 1) {
         nextButton.style.display = 'none';
         submitButton.style.display = 'block';
-        submitButton.disabled = false; // Always enable submit button
+        submitButton.disabled = false; // Always enable submit button on last question
     } else {
         nextButton.style.display = 'block';
         submitButton.style.display = 'none';
@@ -492,9 +492,9 @@ function updateButtonStates() {
     // Allow free navigation - users can skip questions
     nextButton.disabled = currentQuestionIndex >= shuffledQuizData.length - 1;
 
-    // Enable submit button on last question if all questions are answered
+    // Keep submit button enabled on last question
     if (currentQuestionIndex === shuffledQuizData.length - 1) {
-        submitButton.disabled = !allQuestionsAnswered();
+        submitButton.disabled = false;
     }
 }
 
@@ -639,7 +639,11 @@ function setupEventListeners() {
             clearProgress();
             showResultsScreen();
         } else {
-            alert('Please answer all questions before submitting.');
+            const unansweredCount = answeredQuestions.filter(answered => !answered).length;
+            if (confirm(`You have ${unansweredCount} unanswered question(s). Submit anyway? Unanswered questions will be marked as incorrect.`)) {
+                clearProgress();
+                showResultsScreen();
+            }
         }
     });
 
