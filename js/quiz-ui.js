@@ -381,11 +381,6 @@ function checkAnswer(questionIndex, selectedOptionIndex) {
 
     // Update button states
     updateButtonStates();
-
-    // Enable submit button on last question if all questions are answered
-    if (questionIndex === shuffledQuizData.length - 1) {
-        submitButton.disabled = !allQuestionsAnswered();
-    }
 }
 
 function checkMultiAnswer(questionIndex, selectedOptionIndices) {
@@ -433,11 +428,6 @@ function checkMultiAnswer(questionIndex, selectedOptionIndices) {
 
     // Update button states
     updateButtonStates();
-
-    // Enable submit button on last question if all questions are answered
-    if (questionIndex === shuffledQuizData.length - 1) {
-        submitButton.disabled = !allQuestionsAnswered();
-    }
 }
 
 function showFeedback(questionIndex) {
