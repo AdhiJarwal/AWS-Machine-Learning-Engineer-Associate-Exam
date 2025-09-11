@@ -330,7 +330,7 @@ function displayQuestion(index) {
     if (index === shuffledQuizData.length - 1) {
         nextButton.style.display = 'none';
         submitButton.style.display = 'block';
-        submitButton.disabled = !allQuestionsAnswered();
+        submitButton.disabled = false; // Always enable submit button
     } else {
         nextButton.style.display = 'block';
         submitButton.style.display = 'none';
@@ -635,8 +635,12 @@ function setupEventListeners() {
 
     // Submit button
     submitButton.addEventListener('click', () => {
-        clearProgress();
-        showResultsScreen();
+        if (allQuestionsAnswered()) {
+            clearProgress();
+            showResultsScreen();
+        } else {
+            alert('Please answer all questions before submitting.');
+        }
     });
 
     // Navigation buttons - simplified without redundant checks
