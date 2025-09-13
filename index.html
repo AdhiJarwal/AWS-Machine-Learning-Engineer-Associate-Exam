@@ -28,33 +28,89 @@
                     <option value="large">Large</option>
                 </select>
             </div>
+            <div class="setting-group">
+                <button id="reset-progress-btn" class="reset-progress-btn">🗑️ Reset All Progress</button>
+            </div>
         </div>
     </div>
 
     <div class="header-section">
-        <h1>AWS ML Engineer Associate</h1>
+        <h1>AWS Certified Machine Learning Engineer - Associate Exam</h1>
         <p class="created-by">- created by Adhiraj Jarwal</p>
     </div>
 
     <!-- Start Screen -->
     <div id="start-screen" class="start-screen">
-        <h2>Welcome to the AWS Machine Learning Engineer Exam</h2>
-        <p>This quiz contains 114 questions to test your knowledge of AWS AI/ML services.</p>
-        <p>You'll have unlimited time to complete the quiz. Your time will be recorded.</p>
-        <button id="start-btn" class="start-btn">Start Quiz</button>
+        <h2>Welcome to the AWS Certified Machine Learning Engineer - Associate Exam</h2>
+        
+        <!-- Quiz Statistics Dashboard -->
+        <div class="quiz-stats-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="total-questions">114</span>
+                    <span class="stat-label">Total Questions</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="avg-time">~90min</span>
+                    <span class="stat-label">Avg Completion</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="success-rate">--</span>
+                    <span class="stat-label">Success Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Tracking -->
+        <div class="progress-tracking" id="progress-tracking" style="display: none;">
+            <h3>Your Progress</h3>
+            <div class="progress-stats">
+                <div class="progress-item">
+                    <span class="progress-label">Best Score:</span>
+                    <span class="progress-value" id="best-score">0/114</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">Attempts:</span>
+                    <span class="progress-value" id="attempt-count">0</span>
+                </div>
+                <div class="progress-item">
+                    <span class="progress-label">Last Attempt:</span>
+                    <span class="progress-value" id="last-attempt">Never</span>
+                </div>
+            </div>
+            <div class="improvement-suggestion" id="improvement-suggestion"></div>
+        </div>
+
+        <!-- Quiz History -->
+        <div class="quiz-history" id="quiz-history" style="display: none;">
+            <h3>Quiz History</h3>
+            <div id="history-container" class="history-container"></div>
+        </div>
+
+        <!-- Important Note -->
+        <div class="important-note">
+            <span class="note-icon">💡</span>
+            <p><strong>Important:</strong> Always refresh the page before starting - there might be new questions and updates you don't want to miss!</p>
+        </div>
+
+        <div class="start-buttons">
+            <button id="start-new-btn" class="start-btn">Start New Quiz</button>
+            <button id="resume-btn" class="resume-btn" style="display: none;">Resume Quiz</button>
+        </div>
     </div>
 
     <!-- Quiz Container - Initially Hidden -->
     <div id="quiz-container" class="quiz-container" style="display: none;">
         <div class="quiz-header">
             <div class="progress-container">
-                <div>Question <span id="current-question"></span> of <span id="total-questions"></span></div>
+                <div>Question <span id="current-question"></span> of <span id="quiz-total-questions"></span></div>
                 <div class="progress-bar">
                     <div class="progress" id="progress"></div>
                 </div>
             </div>
 
             <div class="timer-container">
+                <button id="quiz-home-btn" class="quiz-home-btn">🏠</button>
                 <button id="reset-btn" class="reset-btn">🔄</button>
                 <button id="pause-btn" class="pause-btn">⏸️</button>
                 Time: <span id="timer">00:00:00</span>
@@ -89,8 +145,10 @@
                 </div>
                 <div class="details-container">
                     <div class="details-label">Details:</div>
+                    <div id="attempted-count" class="detail">Attempted: 0</div>
                     <div id="correct-count" class="detail">Correct Answers: 0</div>
                     <div id="incorrect-count" class="detail">Incorrect Answers: 0</div>
+                    <div id="unattempted-count" class="detail">Unattempted: 0</div>
                     <div id="percentage" class="detail">Percentage: 0%</div>
                 </div>
             </div>
@@ -113,6 +171,7 @@
             </div>
         </div>
         <div class="results-actions">
+            <button id="home-btn" class="home-btn">Home</button>
             <button id="retake-btn" class="retake-btn">Retake Quiz</button>
             <button id="review-incorrect-btn" class="review-btn">Review Incorrect Answers</button>
         </div>

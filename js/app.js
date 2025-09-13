@@ -27,7 +27,9 @@ function initQuiz() {
     incorrectAnswers = [];
 
     // Display total questions
-    totalQuestionsElement.textContent = shuffledQuizData.length;
+    if (totalQuestionsElement) {
+        totalQuestionsElement.textContent = shuffledQuizData.length;
+    }
 
     // Display first question
     displayQuestion(currentQuestionIndex);
@@ -37,5 +39,56 @@ function initQuiz() {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    loadUserStats();
     showStartScreen();
 });
+
+// Load user statistics from localStorage
+function loadUserStats() {
+    const stats = JSON.parse(localStorage.getItem('aws-quiz-stats') || '{}');
+    
+    const successRate = stats.attempts > 0 ? Math.round((stats.bestScore || 0) / quizData.length * 100) : 0;
+    const successRateElement = document.getElementById('success-rate');
+    if (successRateElement) {
+        successRateElement.textContent = `${successRate}%`;
+    }
+    
+    if (stats.attempts > 0) {
+        const progressTracking = document.getElementById('progress-tracking');
+        if (progressTracking) {
+            progressTracking.style.display = 'block';
+            
+            const bestScoreElement = document.getElementById('best-score');
+            const attemptCountElement = document.getElementById('attempt-count');
+            const lastAttemptElement = document.getElementById('last-attempt');
+            const improvementElement = document.getElementById('improvement-suggestion');
+            
+            if (bestScoreElement) bestScoreElement.textContent = `${stats.bestScore || 0}/${quizData.length}`;
+            if (attemptCountElement) attemptCountElement.textContent = stats.attempts;
+            if (lastAttemptElement) lastAttemptElement.textContent = stats.lastAttempt || 'Never';
+            
+            // Improvement suggestion
+            if (improvementElement) {
+                let suggestion = '';
+                if (successRate < 50) suggestion = 'Focus on AWS ML fundamentals and SageMaker basics';
+                else if (successRate < 70) suggestion = 'Review advanced ML concepts and AWS best practices';
+                else if (successRate < 85) suggestion = 'Practice edge cases and optimization scenarios';
+                else suggestion = 'Excellent! Keep practicing to maintain your skills';
+                
+                improvementElement.textContent = suggestion;
+            }
+        }
+    }
+}
+
+// Save quiz results to localStorage
+function saveQuizStats(score, totalQuestions) {
+    const stats = JSON.parse(localStorage.getItem('aws-quiz-stats') || '{}');
+    
+    stats.attempts = (stats.attempts || 0) + 1;
+    stats.bestScore = Math.max(stats.bestScore || 0, score);
+    stats.lastAttempt = new Date().toLocaleDateString();
+    
+    localStorage.setItem('aws-quiz-stats', JSON.stringify(stats));
+    console.log('Saved stats:', stats); // Debug log
+}

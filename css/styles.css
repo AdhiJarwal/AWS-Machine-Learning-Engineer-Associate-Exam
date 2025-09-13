@@ -944,6 +944,298 @@ button {
     border-color: #555555 !important;
 }
 
+/* Quiz Statistics Dashboard */
+.quiz-stats-dashboard {
+    margin: 20px 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--bg-main-light);
+    border: 2px solid var(--muted-green);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--olive-green);
+}
+
+.stat-label {
+    display: block;
+    font-size: 12px;
+    color: var(--dark-green);
+    margin-top: 5px;
+}
+
+/* Progress Tracking */
+.progress-tracking {
+    background: var(--bg-main-light);
+    border: 1px solid var(--muted-green);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.progress-tracking h3 {
+    margin: 0 0 15px 0;
+    color: var(--olive-green);
+    font-size: 18px;
+}
+
+.progress-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.progress-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--muted-green);
+}
+
+.progress-label {
+    font-weight: 500;
+    color: var(--dark-green);
+}
+
+.progress-value {
+    font-weight: bold;
+    color: var(--olive-green);
+}
+
+.improvement-suggestion {
+    background: rgba(138, 163, 155, 0.1);
+    border-left: 4px solid var(--muted-green);
+    padding: 10px;
+    font-style: italic;
+    color: var(--olive-green);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Important Note */
+.important-note {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.note-icon {
+    font-size: 20px;
+}
+
+.important-note p {
+    margin: 0;
+    color: #856404;
+    font-size: 14px;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .stat-card {
+    background: var(--bg-main-dark) !important;
+    border-color: #555555 !important;
+}
+
+[data-theme="dark"] .stat-number {
+    color: var(--muted-green) !important;
+}
+
+[data-theme="dark"] .stat-label {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .progress-tracking {
+    background: var(--bg-main-dark) !important;
+    border-color: #555555 !important;
+}
+
+[data-theme="dark"] .progress-tracking h3 {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .progress-label {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .progress-value {
+    color: var(--muted-green) !important;
+}
+
+[data-theme="dark"] .improvement-suggestion {
+    background: rgba(138, 163, 155, 0.2) !important;
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .important-note {
+    background: rgba(255, 193, 7, 0.2) !important;
+    border-color: #ffc107 !important;
+}
+
+[data-theme="dark"] .important-note p {
+    color: #ffc107 !important;
+}
+
+.home-btn {
+    background-color: var(--olive-green) !important;
+    color: white !important;
+    padding: 12px 30px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.home-btn:hover {
+    background-color: var(--dark-green) !important;
+    transform: translateY(-1px);
+}
+
+.reset-progress-btn {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.reset-progress-btn:hover {
+    background-color: #c82333 !important;
+    transform: translateY(-1px);
+}
+
+.quiz-home-btn {
+    background-color: var(--olive-green);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.quiz-home-btn:hover {
+    background-color: var(--dark-green);
+}
+
+.start-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.resume-btn {
+    background-color: var(--muted-green);
+    color: white !important;
+    border: none;
+    padding: var(--space-md) var(--space-xl);
+    font-size: var(--font-lg);
+    font-weight: 600;
+    border-radius: var(--space-sm);
+    cursor: pointer;
+    margin-top: var(--space-lg);
+    box-shadow: 0 4px 12px rgba(138, 163, 155, 0.3);
+    transition: all 0.2s ease;
+}
+
+.resume-btn:hover {
+    background-color: var(--olive-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(138, 163, 155, 0.4);
+}
+
+/* Quiz History */
+.quiz-history {
+    background: var(--bg-main-light);
+    border: 1px solid var(--muted-green);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.quiz-history h3 {
+    margin: 0 0 15px 0;
+    color: var(--olive-green);
+    font-size: 18px;
+}
+
+.history-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(138, 163, 155, 0.1);
+    border-radius: 5px;
+    border-left: 3px solid var(--muted-green);
+}
+
+.history-date {
+    font-size: 14px;
+    color: var(--dark-green);
+}
+
+.history-score {
+    font-weight: bold;
+    color: var(--olive-green);
+}
+
+/* Dark theme support */
+[data-theme="dark"] .quiz-history {
+    background: var(--bg-main-dark) !important;
+    border-color: #555555 !important;
+}
+
+[data-theme="dark"] .quiz-history h3 {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .history-item {
+    background: rgba(138, 163, 155, 0.2) !important;
+}
+
+[data-theme="dark"] .history-date {
+    color: var(--text-light) !important;
+}
+
+[data-theme="dark"] .history-score {
+    color: var(--muted-green) !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .results-content {

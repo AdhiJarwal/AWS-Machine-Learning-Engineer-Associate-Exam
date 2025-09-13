@@ -3,11 +3,14 @@ const startScreen = document.getElementById('start-screen');
 const quizContainer = document.getElementById('quiz-container');
 const resultsScreen = document.getElementById('results-screen');
 const reviewScreen = document.getElementById('review-screen');
-const startButton = document.getElementById('start-btn');
+const startButton = document.getElementById('start-new-btn');
+const resumeButton = document.getElementById('resume-btn');
+const quizHomeButton = document.getElementById('quiz-home-btn');
 const retakeButton = document.getElementById('retake-btn');
 const submitButton = document.getElementById('submit-btn');
 const reviewIncorrectButton = document.getElementById('review-incorrect-btn');
 const backToResultsButton = document.getElementById('back-to-results-btn');
+const homeButton = document.getElementById('home-btn');
 
 const questionContainer = document.getElementById('question-container');
 const questionText = document.getElementById('question-text');
@@ -17,7 +20,7 @@ const prevButton = document.getElementById('prev-btn');
 const nextButton = document.getElementById('next-btn');
 
 const currentQuestionElement = document.getElementById('current-question');
-const totalQuestionsElement = document.getElementById('total-questions');
+const totalQuestionsElement = document.getElementById('quiz-total-questions');
 const progressBar = document.getElementById('progress');
 const timerElement = document.getElementById('timer');
 
@@ -73,10 +76,14 @@ function showResultsScreen() {
     // Stop the timer
     stopTimer();
 
-    // Calculate results and collect incorrect answers
-    let incorrect = 0;
+    // Calculate results - count answered questions and use existing score
+    const answeredCount = answeredQuestions.filter(answered => answered).length;
+    const correct = score;
+    const incorrect = answeredCount - correct;
+    const unanswered = shuffledQuizData.length - answeredCount;
+    
+    // Recalculate incorrectAnswers based on current state
     incorrectAnswers = [];
-
     for (let i = 0; i < answeredQuestions.length; i++) {
         if (answeredQuestions[i]) {
             const question = shuffledQuizData[i];
@@ -84,22 +91,19 @@ function showResultsScreen() {
             let isIncorrect = false;
 
             if (isMultiSelect) {
-                const selectedOptions = selectedAnswers[i].map(index => question.options[index]);
-                const allCorrectSelected = question.rightAnswer.every(correctOpt =>
-                    selectedOptions.includes(correctOpt));
-                const noIncorrectSelected = selectedOptions.every(selectedOpt =>
-                    question.rightAnswer.includes(selectedOpt));
-
-                if (!(allCorrectSelected && noIncorrectSelected)) {
-                    incorrect++;
-                    isIncorrect = true;
+                if (selectedAnswers[i] && Array.isArray(selectedAnswers[i])) {
+                    const selectedOptions = selectedAnswers[i].map(index => question.options[index]);
+                    const allCorrectSelected = question.rightAnswer.every(correctOpt =>
+                        selectedOptions.includes(correctOpt));
+                    const noIncorrectSelected = selectedOptions.every(selectedOpt =>
+                        question.rightAnswer.includes(selectedOpt));
+                    isIncorrect = !(allCorrectSelected && noIncorrectSelected);
+                } else {
+                    isIncorrect = true; // No selection means incorrect
                 }
             } else {
-                if (selectedAnswers[i] !== null &&
-                    question.options[selectedAnswers[i]] !== question.rightAnswer) {
-                    incorrect++;
-                    isIncorrect = true;
-                }
+                isIncorrect = selectedAnswers[i] === null ||
+                    question.options[selectedAnswers[i]] !== question.rightAnswer;
             }
 
             if (isIncorrect) {
@@ -107,7 +111,8 @@ function showResultsScreen() {
                     questionIndex: i,
                     question: question,
                     selectedAnswer: isMultiSelect ? 
-                        selectedAnswers[i].map(index => question.options[index]) : 
+                        (selectedAnswers[i] && Array.isArray(selectedAnswers[i]) ? 
+                            selectedAnswers[i].map(index => question.options[index]) : []) : 
                         (selectedAnswers[i] !== null ? question.options[selectedAnswers[i]] : null),
                     correctAnswer: question.rightAnswer
                 });
@@ -115,22 +120,52 @@ function showResultsScreen() {
         }
     }
 
-    const correct = score;
     const total = shuffledQuizData.length;
     const percentage = Math.round((correct / total) * 100);
 
     // Update results display
     finalScoreElement.textContent = `${correct}/${total}`;
     finalTimeElement.textContent = timerElement.textContent;
+    document.getElementById('attempted-count').textContent = `Attempted: ${answeredCount}`;
     correctCountElement.textContent = `Correct Answers: ${correct}`;
     incorrectCountElement.textContent = `Incorrect Answers: ${incorrect}`;
+    document.getElementById('unattempted-count').textContent = `Unattempted: ${unanswered}`;
     percentageElement.textContent = `Percentage: ${percentage}%`;
     
     // Draw pie chart
-    drawPieChart(correct, incorrect, total - correct - incorrect);
+    drawPieChart(correct, incorrect, unanswered);
     
     // Update legend
-    updateChartLegend(correct, incorrect, total - correct - incorrect, total);
+    updateChartLegend(correct, incorrect, unanswered, total);
+    
+    // Save quiz statistics - only save once per quiz completion
+    const stats = JSON.parse(localStorage.getItem('aws-quiz-stats') || '{}');
+    
+    // Check if this quiz was already saved to prevent duplicates
+    const quizId = `${correct}-${total}-${Date.now()}`;
+    if (stats.lastQuizId === quizId) {
+        console.log('Quiz already saved, skipping duplicate');
+        return;
+    }
+    
+    stats.attempts = (stats.attempts || 0) + 1;
+    stats.bestScore = Math.max(stats.bestScore || 0, correct);
+    const now = new Date();
+    stats.lastAttempt = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    stats.lastQuizId = quizId;
+    
+    // Add to history
+    if (!stats.history) stats.history = [];
+    const currentPercentage = Math.round((correct / total) * 100);
+    stats.history.push({
+        date: stats.lastAttempt,
+        score: correct,
+        total: total,
+        percentage: currentPercentage
+    });
+    
+    localStorage.setItem('aws-quiz-stats', JSON.stringify(stats));
+    console.log('Saved stats:', stats);
 }
 
 function initQuiz() {
@@ -145,6 +180,12 @@ function initQuiz() {
         seconds = progress.seconds || 0;
         minutes = progress.minutes || 0;
         hours = progress.hours || 0;
+        incorrectAnswers = [];
+        
+        // Use saved shuffled data to maintain question order
+        shuffledQuizData = progress.shuffledQuizData || [];
+        
+        console.log('Resumed - Score:', score, 'Answered:', answeredQuestions.filter(a => a).length);
     } else {
         // Reset variables
         currentQuestionIndex = 0;
@@ -153,33 +194,42 @@ function initQuiz() {
         score = 0;
         incorrectAnswers = [];
         localStorage.removeItem('aws-quiz-progress');
+        
+        // Get quiz data and shuffle only for new quiz
+        if (typeof quizData !== 'undefined') {
+            // Clone the quiz data
+            shuffledQuizData = JSON.parse(JSON.stringify(quizData));
+            // Shuffle the quiz data
+            shuffleArray(shuffledQuizData);
+        } else {
+            console.error('Quiz data not found! Make sure quiz-data.js is loaded.');
+            return;
+        }
     }
 
-    // Get quiz data
-    // We'll assume shuffledQuizData comes from quiz-data.js
-    if (typeof quizData !== 'undefined') {
-        // Clone the quiz data
-        shuffledQuizData = JSON.parse(JSON.stringify(quizData));
-
-        // Shuffle the quiz data
-        shuffleArray(shuffledQuizData);
+    // Initialize arrays only if not resuming
+    if (selectedAnswers.length === 0) {
+        for (let i = 0; i < shuffledQuizData.length; i++) {
+            const isMultiSelect = Array.isArray(shuffledQuizData[i].rightAnswer);
+            selectedAnswers.push(isMultiSelect ? [] : null);
+            answeredQuestions.push(false);
+        }
     } else {
-        console.error('Quiz data not found! Make sure quiz-data.js is loaded.');
-        return;
-    }
-
-    // Initialize arrays
-    for (let i = 0; i < shuffledQuizData.length; i++) {
-        const isMultiSelect = Array.isArray(shuffledQuizData[i].rightAnswer);
-        selectedAnswers.push(isMultiSelect ? [] : null);
-        answeredQuestions.push(false);
+        // Ensure arrays are the right length when resuming
+        while (selectedAnswers.length < shuffledQuizData.length) {
+            const isMultiSelect = Array.isArray(shuffledQuizData[selectedAnswers.length].rightAnswer);
+            selectedAnswers.push(isMultiSelect ? [] : null);
+            answeredQuestions.push(false);
+        }
     }
 
     // Set total questions display
-    totalQuestionsElement.textContent = shuffledQuizData.length;
+    if (totalQuestionsElement) {
+        totalQuestionsElement.textContent = shuffledQuizData.length;
+    }
 
-    // Display first question
-    displayQuestion(0);
+    // Display current question (0 for new quiz, saved index for resumed quiz)
+    displayQuestion(currentQuestionIndex);
 
     // Reset and show quiz container
     pauseButton.textContent = "⏸️";
@@ -190,10 +240,14 @@ function displayQuestion(index) {
     const question = shuffledQuizData[index];
 
     // Update current question number
-    currentQuestionElement.textContent = index + 1;
+    if (currentQuestionElement) {
+        currentQuestionElement.textContent = index + 1;
+    }
 
     // Update progress bar
-    progressBar.style.width = `${((index + 1) / shuffledQuizData.length) * 100}%`;
+    if (progressBar) {
+        progressBar.style.width = `${((index + 1) / shuffledQuizData.length) * 100}%`;
+    }
 
     // Display question text with status indicator
     questionText.textContent = question.question;
@@ -253,22 +307,8 @@ function displayQuestion(index) {
             optionElement.classList.add('selected');
         }
 
-        // If question was answered, show correct/incorrect indicators
-        if (answeredQuestions[index]) {
-            if (isMultiSelect) {
-                if (question.rightAnswer.includes(option)) {
-                    optionElement.classList.add('correct');
-                } else if (selectedAnswers[index].map(i => question.options[i]).includes(option)) {
-                    optionElement.classList.add('incorrect');
-                }
-            } else {
-                if (option === question.rightAnswer) {
-                    optionElement.classList.add('correct');
-                } else if (selectedAnswers[index] === optionIndex) {
-                    optionElement.classList.add('incorrect');
-                }
-            }
-        }
+        // Only show indicators if question was actually submitted (not just selected)
+        // For resumed quizzes, we need to check if the question was truly answered and submitted
 
         // Add event listener to option
         optionElement.addEventListener('click', () => {
@@ -317,9 +357,29 @@ function displayQuestion(index) {
         optionsContainer.appendChild(optionElement);
     });
 
-    // Show feedback if question was answered
+    // Show feedback if question was answered and submitted
     if (answeredQuestions[index]) {
         showFeedback(index);
+        
+        // Show correct/incorrect indicators only for submitted questions
+        setTimeout(() => {
+            const options = optionsContainer.querySelectorAll('.option');
+            options.forEach((opt, optIndex) => {
+                if (isMultiSelect) {
+                    if (question.rightAnswer.includes(question.options[optIndex])) {
+                        opt.classList.add('correct');
+                    } else if (selectedAnswers[index] && selectedAnswers[index].includes(optIndex)) {
+                        opt.classList.add('incorrect');
+                    }
+                } else {
+                    if (question.options[optIndex] === question.rightAnswer) {
+                        opt.classList.add('correct');
+                    } else if (selectedAnswers[index] === optIndex) {
+                        opt.classList.add('incorrect');
+                    }
+                }
+            });
+        }, 0);
     } else {
         hideFeedback();
 
@@ -518,6 +578,10 @@ function allQuestionsAnswered() {
     return answeredQuestions.every(answered => answered === true);
 }
 
+function getUnansweredCount() {
+    return answeredQuestions.filter(answered => !answered).length;
+}
+
 function startTimer() {
     // Clear any existing timer first
     if (timerInterval) {
@@ -636,11 +700,34 @@ function setupEventListeners() {
         return;
     }
 
-    // Start button
+    // Start new quiz button
     startButton.addEventListener('click', () => {
+        const savedProgress = localStorage.getItem('aws-quiz-progress');
+        if (savedProgress && confirm('There is an existing quiz in progress. Starting a new quiz will lose all current progress. Continue?')) {
+            localStorage.removeItem('aws-quiz-progress');
+        } else if (savedProgress) {
+            return; // User cancelled
+        }
         showQuizScreen();
         initQuiz();
     });
+
+    // Resume quiz button
+    if (resumeButton) {
+        resumeButton.addEventListener('click', () => {
+            showQuizScreen();
+            initQuiz();
+        });
+    }
+
+    // Quiz home button
+    if (quizHomeButton) {
+        quizHomeButton.addEventListener('click', () => {
+            saveProgress();
+            loadUserStats();
+            showStartScreen();
+        });
+    }
 
     // Retake button
     retakeButton.addEventListener('click', () => {
@@ -662,13 +749,32 @@ function setupEventListeners() {
         });
     }
 
+    // Home button
+    if (homeButton) {
+        homeButton.addEventListener('click', () => {
+            // Reset timer
+            stopTimer();
+            seconds = 0;
+            minutes = 0;
+            hours = 0;
+            updateTimerDisplay();
+            
+            // Clear any saved progress
+            clearProgress();
+            
+            // Reload stats and show start screen
+            loadUserStats();
+            showStartScreen();
+        });
+    }
+
     // Submit button
     submitButton.addEventListener('click', () => {
-        if (allQuestionsAnswered()) {
+        const unansweredCount = getUnansweredCount();
+        if (unansweredCount === 0) {
             clearProgress();
             showResultsScreen();
         } else {
-            const unansweredCount = answeredQuestions.filter(answered => !answered).length;
             if (confirm(`You have ${unansweredCount} unanswered question(s). Submit anyway? Unanswered questions will be marked as incorrect.`)) {
                 clearProgress();
                 showResultsScreen();
@@ -702,10 +808,86 @@ function setupEventListeners() {
     }
 }
 
+// Load user statistics from localStorage
+function loadUserStats() {
+    const stats = JSON.parse(localStorage.getItem('aws-quiz-stats') || '{}');
+    const savedProgress = localStorage.getItem('aws-quiz-progress');
+    console.log('Loading stats:', stats); // Debug log
+    
+    // Show/hide resume button based on saved progress
+    if (resumeButton) {
+        if (savedProgress) {
+            resumeButton.style.display = 'inline-block';
+        } else {
+            resumeButton.style.display = 'none';
+        }
+    }
+    
+    const totalQuestions = shuffledQuizData.length || quizData.length || 3;
+    
+    // Calculate success rate as average of all attempts
+    let successRate = 0;
+    if (stats.history && stats.history.length > 0) {
+        const totalPercentage = stats.history.reduce((sum, attempt) => sum + attempt.percentage, 0);
+        successRate = Math.round(totalPercentage / stats.history.length);
+    }
+    const successRateElement = document.getElementById('success-rate');
+    if (successRateElement) {
+        successRateElement.textContent = `${successRate}%`;
+        console.log('Set success rate to:', successRate + '%'); // Debug log
+    }
+    
+    if (stats.attempts > 0) {
+        const progressTracking = document.getElementById('progress-tracking');
+        if (progressTracking) {
+            progressTracking.style.display = 'block';
+            
+            const bestScoreElement = document.getElementById('best-score');
+            const attemptCountElement = document.getElementById('attempt-count');
+            const lastAttemptElement = document.getElementById('last-attempt');
+            const improvementElement = document.getElementById('improvement-suggestion');
+            
+            if (bestScoreElement) bestScoreElement.textContent = `${stats.bestScore || 0}/${totalQuestions}`;
+            if (attemptCountElement) attemptCountElement.textContent = stats.attempts;
+            if (lastAttemptElement) lastAttemptElement.textContent = stats.lastAttempt || 'Never';
+            
+            // Improvement suggestion
+            if (improvementElement) {
+                let suggestion = '';
+                if (successRate < 50) suggestion = 'Focus on AWS ML fundamentals and SageMaker basics';
+                else if (successRate < 70) suggestion = 'Review advanced ML concepts and AWS best practices';
+                else if (successRate < 85) suggestion = 'Practice edge cases and optimization scenarios';
+                else suggestion = 'Excellent! Keep practicing to maintain your skills';
+                
+                improvementElement.textContent = suggestion;
+            }
+        }
+    }
+    
+    // Show quiz history
+    const historySection = document.getElementById('quiz-history');
+    const historyContainer = document.getElementById('history-container');
+    if (stats.history && stats.history.length > 0 && historySection && historyContainer) {
+        historySection.style.display = 'block';
+        historyContainer.innerHTML = '';
+        
+        stats.history.slice(-5).reverse().forEach((attempt, index) => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-date">${attempt.date}</div>
+                <div class="history-score">${attempt.score}/${attempt.total} (${attempt.percentage}%)</div>
+            `;
+            historyContainer.appendChild(historyItem);
+        });
+    }
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     initSettings();
+    loadUserStats();
     showStartScreen();
 });
 // Save progress function
@@ -717,7 +899,8 @@ function saveProgress() {
         score,
         seconds,
         minutes,
-        hours
+        hours,
+        shuffledQuizData
     };
     localStorage.setItem('aws-quiz-progress', JSON.stringify(progress));
 }
@@ -931,5 +1114,18 @@ function initSettings() {
             document.body.style.setProperty('--base-font-size', '16px');
         }
     });
+
+    // Reset progress button
+    const resetProgressBtn = document.getElementById('reset-progress-btn');
+    if (resetProgressBtn) {
+        resetProgressBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset ALL progress? This will clear your success rate, attempts, and best score. This action cannot be undone.')) {
+                localStorage.removeItem('aws-quiz-stats');
+                localStorage.removeItem('aws-quiz-progress');
+                alert('All progress has been reset!');
+                location.reload();
+            }
+        });
+    }
 }
 
