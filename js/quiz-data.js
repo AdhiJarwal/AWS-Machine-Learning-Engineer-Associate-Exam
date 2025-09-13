@@ -1148,4 +1148,5 @@ const quizData = [
         ],
         rightAnswer: "C. Use Amazon Comprehend to detect and mask the PII before the data is used for model training. Use Amazon Comprehend Medical to detect and mask the PHI before the data is used for model training."
     }
+    
 ];
