@@ -11,9 +11,8 @@
 <body>
     <!-- Settings Panel -->
     <div id="settings-panel" class="settings-panel">
-        <button id="settings-btn" class="settings-btn">⚙️</button>
+        <button id="settings-btn" class="settings-btn">Settings ⚙️</button>
         <div id="settings-content" class="settings-content" style="display: none;">
-            <h3>Settings</h3>
             <div class="setting-group">
                 <label>Theme:</label>
                 <select id="theme-select">
@@ -78,23 +77,52 @@
     <!-- Results Screen - Initially Hidden -->
     <div id="results-screen" class="results-screen" style="display: none;">
         <h2>Quiz Results</h2>
-        <div id="results-summary" class="results-summary">
-            <div class="score-container">
-                <div class="score-label">Your Score:</div>
-                <div id="final-score" class="final-score">0/150</div>
+        <div class="results-content">
+            <div id="results-summary" class="results-summary">
+                <div class="score-container">
+                    <div class="score-label">Your Score:</div>
+                    <div id="final-score" class="final-score">0/150</div>
+                </div>
+                <div class="time-container">
+                    <div class="time-label">Time Taken:</div>
+                    <div id="final-time" class="final-time">00:00:00</div>
+                </div>
+                <div class="details-container">
+                    <div class="details-label">Details:</div>
+                    <div id="correct-count" class="detail">Correct Answers: 0</div>
+                    <div id="incorrect-count" class="detail">Incorrect Answers: 0</div>
+                    <div id="percentage" class="detail">Percentage: 0%</div>
+                </div>
             </div>
-            <div class="time-container">
-                <div class="time-label">Time Taken:</div>
-                <div id="final-time" class="final-time">00:00:00</div>
-            </div>
-            <div class="details-container">
-                <div class="details-label">Details:</div>
-                <div id="correct-count" class="detail">Correct Answers: 0</div>
-                <div id="incorrect-count" class="detail">Incorrect Answers: 0</div>
-                <div id="percentage" class="detail">Percentage: 0%</div>
+            <div class="pie-chart-container">
+                <canvas id="pie-chart" width="200" height="200"></canvas>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #28a745;"></div>
+                        <span id="correct-legend">Correct: 0%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #dc3545;"></div>
+                        <span id="incorrect-legend">Incorrect: 0%</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #6c757d;"></div>
+                        <span id="unanswered-legend">Unanswered: 0%</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <button id="retake-btn" class="retake-btn">Retake Quiz</button>
+        <div class="results-actions">
+            <button id="retake-btn" class="retake-btn">Retake Quiz</button>
+            <button id="review-incorrect-btn" class="review-btn">Review Incorrect Answers</button>
+        </div>
+    </div>
+
+    <!-- Review Screen - Initially Hidden -->
+    <div id="review-screen" class="review-screen" style="display: none;">
+        <h2>Review Incorrect Answers</h2>
+        <div id="incorrect-questions-container" class="incorrect-questions-container"></div>
+        <button id="back-to-results-btn" class="back-btn">Back to Results</button>
     </div>
 
     <!-- Load scripts -->

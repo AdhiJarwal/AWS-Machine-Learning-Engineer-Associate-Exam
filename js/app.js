@@ -6,6 +6,7 @@ let score = 0;
 let selectedAnswers = [];
 let answeredQuestions = [];
 let shuffledQuizData = [];
+let incorrectAnswers = [];
 
 // Initialize the quiz
 function initQuiz() {
@@ -23,6 +24,7 @@ function initQuiz() {
     // Initialize arrays for tracking answers and answered questions
     selectedAnswers = new Array(shuffledQuizData.length).fill(null);
     answeredQuestions = new Array(shuffledQuizData.length).fill(false);
+    incorrectAnswers = [];
 
     // Display total questions
     totalQuestionsElement.textContent = shuffledQuizData.length;

@@ -2,9 +2,12 @@
 const startScreen = document.getElementById('start-screen');
 const quizContainer = document.getElementById('quiz-container');
 const resultsScreen = document.getElementById('results-screen');
+const reviewScreen = document.getElementById('review-screen');
 const startButton = document.getElementById('start-btn');
 const retakeButton = document.getElementById('retake-btn');
 const submitButton = document.getElementById('submit-btn');
+const reviewIncorrectButton = document.getElementById('review-incorrect-btn');
+const backToResultsButton = document.getElementById('back-to-results-btn');
 
 const questionContainer = document.getElementById('question-container');
 const questionText = document.getElementById('question-text');
@@ -32,6 +35,7 @@ let shuffledQuizData = [];
 let selectedAnswers = [];
 let answeredQuestions = [];
 let score = 0;
+let incorrectAnswers = [];
 
 // Timer variables
 let timerInterval;
@@ -47,12 +51,14 @@ function showStartScreen() {
     startScreen.style.display = 'block';
     quizContainer.style.display = 'none';
     resultsScreen.style.display = 'none';
+    reviewScreen.style.display = 'none';
 }
 
 function showQuizScreen() {
     startScreen.style.display = 'none';
     quizContainer.style.display = 'block';
     resultsScreen.style.display = 'none';
+    reviewScreen.style.display = 'none';
 
     // Start the timer
     startTimer();
@@ -62,17 +68,20 @@ function showResultsScreen() {
     startScreen.style.display = 'none';
     quizContainer.style.display = 'none';
     resultsScreen.style.display = 'block';
+    reviewScreen.style.display = 'none';
 
     // Stop the timer
     stopTimer();
 
-    // Calculate results
+    // Calculate results and collect incorrect answers
     let incorrect = 0;
+    incorrectAnswers = [];
 
     for (let i = 0; i < answeredQuestions.length; i++) {
         if (answeredQuestions[i]) {
             const question = shuffledQuizData[i];
             const isMultiSelect = Array.isArray(question.rightAnswer);
+            let isIncorrect = false;
 
             if (isMultiSelect) {
                 const selectedOptions = selectedAnswers[i].map(index => question.options[index]);
@@ -83,12 +92,25 @@ function showResultsScreen() {
 
                 if (!(allCorrectSelected && noIncorrectSelected)) {
                     incorrect++;
+                    isIncorrect = true;
                 }
             } else {
                 if (selectedAnswers[i] !== null &&
                     question.options[selectedAnswers[i]] !== question.rightAnswer) {
                     incorrect++;
+                    isIncorrect = true;
                 }
+            }
+
+            if (isIncorrect) {
+                incorrectAnswers.push({
+                    questionIndex: i,
+                    question: question,
+                    selectedAnswer: isMultiSelect ? 
+                        selectedAnswers[i].map(index => question.options[index]) : 
+                        (selectedAnswers[i] !== null ? question.options[selectedAnswers[i]] : null),
+                    correctAnswer: question.rightAnswer
+                });
             }
         }
     }
@@ -103,6 +125,12 @@ function showResultsScreen() {
     correctCountElement.textContent = `Correct Answers: ${correct}`;
     incorrectCountElement.textContent = `Incorrect Answers: ${incorrect}`;
     percentageElement.textContent = `Percentage: ${percentage}%`;
+    
+    // Draw pie chart
+    drawPieChart(correct, incorrect, total - correct - incorrect);
+    
+    // Update legend
+    updateChartLegend(correct, incorrect, total - correct - incorrect, total);
 }
 
 function initQuiz() {
@@ -123,6 +151,7 @@ function initQuiz() {
         selectedAnswers = [];
         answeredQuestions = [];
         score = 0;
+        incorrectAnswers = [];
         localStorage.removeItem('aws-quiz-progress');
     }
 
@@ -451,14 +480,10 @@ function showFeedback(questionIndex) {
     }
 
     if (correct) {
-        feedbackContainer.textContent = "Correct! Well done.";
+        feedbackContainer.textContent = "Correct! You nailed it!";
         feedbackContainer.className = "feedback correct";
     } else {
-        if (isMultiSelect) {
-            feedbackContainer.textContent = `Incorrect. The correct answers are: ${question.rightAnswer.join(" and ")}`;
-        } else {
-            feedbackContainer.textContent = `Incorrect. The correct answer is: ${question.rightAnswer}`;
-        }
+        feedbackContainer.textContent = "Incorrect, better luck next time.";
         feedbackContainer.className = "feedback incorrect";
     }
 
@@ -623,6 +648,20 @@ function setupEventListeners() {
         initQuiz();
     });
 
+    // Review incorrect answers button
+    if (reviewIncorrectButton) {
+        reviewIncorrectButton.addEventListener('click', () => {
+            showReviewScreen();
+        });
+    }
+
+    // Back to results button
+    if (backToResultsButton) {
+        backToResultsButton.addEventListener('click', () => {
+            showResultsScreen();
+        });
+    }
+
     // Submit button
     submitButton.addEventListener('click', () => {
         if (allQuestionsAnswered()) {
@@ -687,6 +726,163 @@ function saveProgress() {
 function clearProgress() {
     localStorage.removeItem('aws-quiz-progress');
 }
+
+// Pie chart function
+function drawPieChart(correct, incorrect, unanswered) {
+    const canvas = document.getElementById('pie-chart');
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 80;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const total = correct + incorrect + unanswered;
+    if (total === 0) return;
+    
+    // Calculate angles and percentages
+    const correctAngle = (correct / total) * 2 * Math.PI;
+    const incorrectAngle = (incorrect / total) * 2 * Math.PI;
+    const unansweredAngle = (unanswered / total) * 2 * Math.PI;
+    
+    let currentAngle = -Math.PI / 2; // Start from top
+    
+    // Draw correct slice (green)
+    if (correct > 0) {
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + correctAngle);
+        ctx.closePath();
+        ctx.fillStyle = '#28a745';
+        ctx.fill();
+        
+        // Add percentage text
+        const midAngle = currentAngle + correctAngle / 2;
+        const textX = centerX + Math.cos(midAngle) * (radius * 0.7);
+        const textY = centerY + Math.sin(midAngle) * (radius * 0.7);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        const correctPercent = Math.round((correct / total) * 100);
+        if (correctPercent > 5) ctx.fillText(`${correctPercent}%`, textX, textY);
+        
+        currentAngle += correctAngle;
+    }
+    
+    // Draw incorrect slice (red)
+    if (incorrect > 0) {
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + incorrectAngle);
+        ctx.closePath();
+        ctx.fillStyle = '#dc3545';
+        ctx.fill();
+        
+        // Add percentage text
+        const midAngle = currentAngle + incorrectAngle / 2;
+        const textX = centerX + Math.cos(midAngle) * (radius * 0.7);
+        const textY = centerY + Math.sin(midAngle) * (radius * 0.7);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        const incorrectPercent = Math.round((incorrect / total) * 100);
+        if (incorrectPercent > 5) ctx.fillText(`${incorrectPercent}%`, textX, textY);
+        
+        currentAngle += incorrectAngle;
+    }
+    
+    // Draw unanswered slice (gray)
+    if (unanswered > 0) {
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + unansweredAngle);
+        ctx.closePath();
+        ctx.fillStyle = '#6c757d';
+        ctx.fill();
+        
+        // Add percentage text
+        const midAngle = currentAngle + unansweredAngle / 2;
+        const textX = centerX + Math.cos(midAngle) * (radius * 0.7);
+        const textY = centerY + Math.sin(midAngle) * (radius * 0.7);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        const unansweredPercent = Math.round((unanswered / total) * 100);
+        if (unansweredPercent > 5) ctx.fillText(`${unansweredPercent}%`, textX, textY);
+    }
+    
+    // Add border
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+// Update chart legend
+function updateChartLegend(correct, incorrect, unanswered, total) {
+    const correctPercent = Math.round((correct / total) * 100);
+    const incorrectPercent = Math.round((incorrect / total) * 100);
+    const unansweredPercent = Math.round((unanswered / total) * 100);
+    
+    document.getElementById('correct-legend').textContent = `Correct: ${correctPercent}% (${correct})`;
+    document.getElementById('incorrect-legend').textContent = `Incorrect: ${incorrectPercent}% (${incorrect})`;
+    document.getElementById('unanswered-legend').textContent = `Unanswered: ${unansweredPercent}% (${unanswered})`;
+}
+
+function showReviewScreen() {
+    startScreen.style.display = 'none';
+    quizContainer.style.display = 'none';
+    resultsScreen.style.display = 'none';
+    reviewScreen.style.display = 'block';
+
+    displayIncorrectQuestions();
+}
+
+function displayIncorrectQuestions() {
+    const container = document.getElementById('incorrect-questions-container');
+    container.innerHTML = '';
+
+    if (incorrectAnswers.length === 0) {
+        container.innerHTML = '<p class="no-incorrect">🎉 Great job! You got all questions correct!</p>';
+        return;
+    }
+
+    incorrectAnswers.forEach((item, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'incorrect-question-item';
+        
+        const isMultiSelect = Array.isArray(item.correctAnswer);
+        
+        questionDiv.innerHTML = `
+            <div class="question-number">Question ${item.questionIndex + 1}</div>
+            <div class="question-text-review">${item.question.question}</div>
+            
+            <div class="answer-section">
+                <div class="your-answer">
+                    <strong>Your Answer:</strong>
+                    <span class="incorrect-answer">${
+                        isMultiSelect ? 
+                            (Array.isArray(item.selectedAnswer) ? item.selectedAnswer.join(', ') : 'No answer selected') :
+                            (item.selectedAnswer || 'No answer selected')
+                    }</span>
+                </div>
+                
+                <div class="correct-answer">
+                    <strong>Correct Answer:</strong>
+                    <span class="right-answer">${
+                        isMultiSelect ? 
+                            item.correctAnswer.join(', ') :
+                            item.correctAnswer
+                    }</span>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(questionDiv);
+    });
+}
 // Settings functionality
 function initSettings() {
     const settingsBtn = document.getElementById('settings-btn');
@@ -697,9 +893,22 @@ function initSettings() {
     if (!settingsBtn || !settingsContent || !themeSelect || !fontSizeSelect) return;
 
     // Toggle settings panel
-    settingsBtn.addEventListener('click', () => {
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const isVisible = settingsContent.style.display !== 'none';
         settingsContent.style.display = isVisible ? 'none' : 'block';
+    });
+
+    // Close settings when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!settingsBtn.contains(e.target) && !settingsContent.contains(e.target)) {
+            settingsContent.style.display = 'none';
+        }
+    });
+
+    // Prevent closing when clicking inside settings content
+    settingsContent.addEventListener('click', (e) => {
+        e.stopPropagation();
     });
 
     // Theme change
