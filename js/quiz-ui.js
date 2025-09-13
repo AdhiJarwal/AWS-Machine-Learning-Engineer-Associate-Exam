@@ -39,6 +39,7 @@ let selectedAnswers = [];
 let answeredQuestions = [];
 let score = 0;
 let incorrectAnswers = [];
+let quizSaved = false;
 
 // Timer variables
 let timerInterval;
@@ -139,20 +140,18 @@ function showResultsScreen() {
     updateChartLegend(correct, incorrect, unanswered, total);
     
     // Save quiz statistics - only save once per quiz completion
-    const stats = JSON.parse(localStorage.getItem('aws-quiz-stats') || '{}');
-    
-    // Check if this quiz was already saved to prevent duplicates
-    const quizId = `${correct}-${total}-${Date.now()}`;
-    if (stats.lastQuizId === quizId) {
+    if (quizSaved) {
         console.log('Quiz already saved, skipping duplicate');
         return;
     }
+    
+    const stats = JSON.parse(localStorage.getItem('aws-quiz-stats') || '{}');
     
     stats.attempts = (stats.attempts || 0) + 1;
     stats.bestScore = Math.max(stats.bestScore || 0, correct);
     const now = new Date();
     stats.lastAttempt = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-    stats.lastQuizId = quizId;
+    quizSaved = true;
     
     // Add to history
     if (!stats.history) stats.history = [];
@@ -193,6 +192,7 @@ function initQuiz() {
         answeredQuestions = [];
         score = 0;
         incorrectAnswers = [];
+        quizSaved = false;
         localStorage.removeItem('aws-quiz-progress');
         
         // Get quiz data and shuffle only for new quiz
