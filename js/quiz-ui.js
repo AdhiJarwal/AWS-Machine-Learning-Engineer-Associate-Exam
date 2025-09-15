@@ -795,17 +795,6 @@ function setupEventListeners() {
 
     // Pause button
     pauseButton.addEventListener('click', togglePause);
-
-    // Reset button
-    const resetButton = document.getElementById('reset-btn');
-    if (resetButton) {
-        resetButton.addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset the quiz? All progress will be lost.')) {
-                clearProgress();
-                showStartScreen();
-            }
-        });
-    }
 }
 
 // Load user statistics from localStorage
