@@ -307,6 +307,9 @@ function displayQuestion(index) {
             optionElement.classList.add('selected');
         }
 
+        // Only show indicators if question was actually submitted (not just selected)
+        // For resumed quizzes, we need to check if the question was truly answered and submitted
+
         // Add event listener to option
         optionElement.addEventListener('click', () => {
             // If question already answered, don't allow changes
@@ -426,80 +429,6 @@ function displayQuestion(index) {
     updateButtonStates();
 }
 
-function showFeedback(questionIndex) {
-    const question = shuffledQuizData[questionIndex];
-    const isMultiSelect = Array.isArray(question.rightAnswer);
-
-    let correct;
-
-    if (isMultiSelect) {
-        const selectedOptions = selectedAnswers[questionIndex].map(index => question.options[index]);
-        const allCorrectSelected = question.rightAnswer.every(correctOpt =>
-            selectedOptions.includes(correctOpt));
-        const noIncorrectSelected = selectedOptions.every(selectedOpt =>
-            question.rightAnswer.includes(selectedOpt));
-
-        correct = allCorrectSelected && noIncorrectSelected;
-    } else {
-        const selectedOptionIndex = selectedAnswers[questionIndex];
-        const selectedOption = question.options[selectedOptionIndex];
-        correct = selectedOption === question.rightAnswer;
-    }
-
-    if (correct) {
-        feedbackContainer.textContent = "Correct! You nailed it!";
-        feedbackContainer.className = "feedback correct";
-    } else {
-        feedbackContainer.textContent = "Incorrect, better luck next time.";
-        feedbackContainer.className = "feedback incorrect";
-    }
-
-    feedbackContainer.style.display = "block";
-}
-
-function displayIncorrectQuestions() {
-    const container = document.getElementById('incorrect-questions-container');
-    container.innerHTML = '';
-
-    if (incorrectAnswers.length === 0) {
-        container.innerHTML = '<p class="no-incorrect">🎉 Great job! You got all questions correct!</p>';
-        return;
-    }
-
-    incorrectAnswers.forEach((item, index) => {
-        const questionDiv = document.createElement('div');
-        questionDiv.className = 'incorrect-question-item';
-        
-        const isMultiSelect = Array.isArray(item.correctAnswer);
-        
-        questionDiv.innerHTML = `
-            <div class="question-number">Question ${item.questionIndex + 1}</div>
-            <div class="question-text-review">${item.question.question}</div>
-            
-            <div class="answer-section">
-                <div class="your-answer">
-                    <strong>Your Answer:</strong>
-                    <span class="incorrect-answer">${
-                        isMultiSelect ? 
-                            (Array.isArray(item.selectedAnswer) ? item.selectedAnswer.join(', ') : 'No answer selected') :
-                            (item.selectedAnswer || 'No answer selected')
-                    }</span>
-                </div>
-                
-                <div class="correct-answer">
-                    <strong>Correct Answer:</strong>
-                    <span class="right-answer">${
-                        isMultiSelect ? 
-                            item.correctAnswer.join(', ') : 
-                            item.correctAnswer
-                    }</span>
-                </div>
-            </div>
-        `;
-        
-        container.appendChild(questionDiv);
-    });
-}
 function checkAnswer(questionIndex, selectedOptionIndex) {
     const question = shuffledQuizData[questionIndex];
     const selectedOption = question.options[selectedOptionIndex];
@@ -698,6 +627,7 @@ function stopTimer() {
 
 function togglePause() {
     isPaused = !isPaused;
+    const pauseOverlay = document.getElementById('pause-overlay');
 
     if (isPaused) {
         // Pause the timer
@@ -749,7 +679,6 @@ function togglePause() {
         updateButtonStates();
 
         // Remove pause overlay
-        const pauseOverlay = document.getElementById('pause-overlay');
         if (pauseOverlay) pauseOverlay.remove();
     }
 }

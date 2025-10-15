@@ -70,19 +70,10 @@ function loadUserStats() {
             // Improvement suggestion
             if (improvementElement) {
                 let suggestion = '';
-                if (successRate < 50) {
-                    suggestion = 'Focus on AWS ML fundamentals and SageMaker basics';
-                    improvementElement.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md';
-                } else if (successRate < 70) {
-                    suggestion = 'Review advanced ML concepts and AWS best practices';
-                    improvementElement.className = 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md';
-                } else if (successRate < 85) {
-                    suggestion = 'Practice edge cases and optimization scenarios';
-                    improvementElement.className = 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md';
-                } else {
-                    suggestion = 'Excellent! Keep practicing to maintain your skills';
-                    improvementElement.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md';
-                }
+                if (successRate < 50) suggestion = 'Focus on AWS ML fundamentals and SageMaker basics';
+                else if (successRate < 70) suggestion = 'Review advanced ML concepts and AWS best practices';
+                else if (successRate < 85) suggestion = 'Practice edge cases and optimization scenarios';
+                else suggestion = 'Excellent! Keep practicing to maintain your skills';
                 
                 improvementElement.textContent = suggestion;
             }
