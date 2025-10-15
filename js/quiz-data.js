@@ -1214,7 +1214,7 @@ const quizData = [
             "B. A, C, B",
             "C. C, B, A"
         ],
-        rightAnswer: ""
+        rightAnswer: "C. C, B, A"
     },
     {
         question: "A logistics company has installed in-vehicle cameras for basic monitoring of its drivers. The company wants to improve driver safety by identifying distracted driver behaviors. Which solution will meet this requirement with the LEAST operational effort?",

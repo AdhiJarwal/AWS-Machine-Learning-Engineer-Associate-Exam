@@ -168,6 +168,11 @@ function showResultsScreen() {
 }
 
 function initQuiz() {
+    const loadingSpinner = document.getElementById('loading-spinner');
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'block';
+    }
+
     // Check for saved progress
     const savedProgress = localStorage.getItem('aws-quiz-progress');
     if (savedProgress && confirm('Resume previous quiz session?')) {
@@ -203,6 +208,9 @@ function initQuiz() {
             shuffleArray(shuffledQuizData);
         } else {
             console.error('Quiz data not found! Make sure quiz-data.js is loaded.');
+            if (loadingSpinner) {
+                loadingSpinner.style.display = 'none';
+            }
             return;
         }
     }
@@ -234,6 +242,10 @@ function initQuiz() {
     // Reset and show quiz container
     pauseButton.textContent = "⏸️";
     isPaused = false;
+
+    if (loadingSpinner) {
+        loadingSpinner.style.display = 'none';
+    }
 }
 
 function displayQuestion(index) {
