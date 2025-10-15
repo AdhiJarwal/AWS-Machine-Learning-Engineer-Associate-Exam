@@ -1,28 +1,6 @@
 {
   "name": "aws-ml-quiz",
   "version": 2,
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "css/styles.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "js/app.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "js/quiz-data.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "js/quiz-ui.js",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
