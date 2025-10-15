@@ -5,182 +5,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AWS Machine Learning Engineer Associate Quiz</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans leading-normal tracking-normal">
     <!-- Settings Panel -->
-    <div id="settings-panel" class="settings-panel">
-        <button id="settings-btn" class="settings-btn">Settings ⚙️</button>
-        <div id="settings-content" class="settings-content" style="display: none;">
-            <div class="setting-group">
-                <label>Theme:</label>
-                <select id="theme-select">
+    <div id="settings-panel" class="fixed top-4 right-4 z-50">
+        <button id="settings-btn" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Settings ⚙️</button>
+        <div id="settings-content" class="absolute top-12 right-0 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg p-4 min-w-[200px]" style="display: none;">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Theme:</label>
+                <select id="theme-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="light">Light</option>
                     <option value="dark">Dark</option>
                 </select>
             </div>
-            <div class="setting-group">
-                <label>Font Size:</label>
-                <select id="font-size-select">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Font Size:</label>
+                <select id="font-size-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="small">Small</option>
                     <option value="medium" selected>Medium</option>
                     <option value="large">Large</option>
                 </select>
             </div>
-            <div class="setting-group">
-                <button id="reset-progress-btn" class="reset-progress-btn">🗑️ Reset All Progress</button>
+            <div>
+                <button id="reset-progress-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-sm">🗑️ Reset All Progress</button>
             </div>
         </div>
     </div>
 
-    <div class="header-section">
-        <h1>AWS Certified Machine Learning Engineer - Associate Exam</h1>
-        <p class="created-by">- created by Adhiraj Jarwal</p>
+    <div class="text-center mb-12 border-b-4 border-green-500 pb-4">
+        <h1 class="text-4xl font-bold text-gray-800 dark:text-white">AWS Certified Machine Learning Engineer - Associate Exam</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 italic">- created by Adhiraj Jarwal</p>
     </div>
 
     <!-- Start Screen -->
-    <div id="start-screen" class="start-screen">
-        <h2>Welcome to the AWS Certified Machine Learning Engineer - Associate Exam</h2>
+    <div id="start-screen" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Welcome to the AWS Certified Machine Learning Engineer - Associate Exam</h2>
         
         <!-- Quiz Statistics Dashboard -->
-        <div class="quiz-stats-dashboard">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-number" id="total-questions">114</span>
-                    <span class="stat-label">Total Questions</span>
+        <div class="mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                    <span class="text-3xl font-bold text-green-500 block" id="total-questions">114</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Total Questions</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="avg-time">~90min</span>
-                    <span class="stat-label">Avg Completion</span>
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                    <span class="text-3xl font-bold text-green-500 block" id="avg-time">~90min</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Avg Completion</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-number" id="success-rate">--</span>
-                    <span class="stat-label">Success Rate</span>
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                    <span class="text-3xl font-bold text-green-500 block" id="success-rate">--</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Success Rate</span>
                 </div>
             </div>
         </div>
 
         <!-- Progress Tracking -->
         <div class="progress-tracking" id="progress-tracking" style="display: none;">
-            <h3>Your Progress</h3>
-            <div class="progress-stats">
-                <div class="progress-item">
-                    <span class="progress-label">Best Score:</span>
-                    <span class="progress-value" id="best-score">0/114</span>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Your Progress</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                    <span class="text-lg font-bold text-green-500 block" id="best-score">0/114</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Best Score</span>
                 </div>
-                <div class="progress-item">
-                    <span class="progress-label">Attempts:</span>
-                    <span class="progress-value" id="attempt-count">0</span>
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                    <span class="text-lg font-bold text-green-500 block" id="attempt-count">0</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Attempts</span>
                 </div>
-                <div class="progress-item">
-                    <span class="progress-label">Last Attempt:</span>
-                    <span class="progress-value" id="last-attempt">Never</span>
+                <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                    <span class="text-lg font-bold text-green-500 block" id="last-attempt">Never</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Last Attempt</span>
                 </div>
             </div>
-            <div class="improvement-suggestion" id="improvement-suggestion"></div>
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md" id="improvement-suggestion"></div>
         </div>
 
         <!-- Quiz History -->
         <div class="quiz-history" id="quiz-history" style="display: none;">
-            <h3>Quiz History</h3>
-            <div id="history-container" class="history-container"></div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Quiz History</h3>
+            <div id="history-container" class="max-h-48 overflow-y-auto"></div>
         </div>
 
         <!-- Important Note -->
-        <div class="important-note">
-            <span class="note-icon">💡</span>
-            <p><strong>Important:</strong> Always refresh the page before starting - there might be new questions and updates you don't want to miss!</p>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md mt-6">
+            <span class="text-2xl align-middle">💡</span>
+            <p class="inline-block align-middle ml-2"><strong>Important:</strong> Always refresh the page before starting - there might be new questions and updates you don't want to miss!</p>
         </div>
 
-        <div class="start-buttons">
-            <button id="start-new-btn" class="start-btn">Start New Quiz</button>
-            <button id="resume-btn" class="resume-btn" style="display: none;">Resume Quiz</button>
+        <div class="mt-8 flex justify-center gap-4">
+            <button id="start-new-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-transform duration-200">Start New Quiz</button>
+            <button id="resume-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-transform duration-200" style="display: none;">Resume Quiz</button>
         </div>
     </div>
 
     <!-- Quiz Container - Initially Hidden -->
-    <div id="quiz-container" class="quiz-container" style="display: none;">
-        <div class="quiz-header">
-            <div class="progress-container">
-                <div>Question <span id="current-question"></span> of <span id="quiz-total-questions"></span></div>
-                <div class="progress-bar">
-                    <div class="progress" id="progress"></div>
+    <div id="quiz-container" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-4xl mx-auto" style="display: none;">
+        <div class="flex justify-between items-center mb-6">
+            <div class="w-full">
+                <div class="flex justify-between mb-1">
+                    <span class="text-base font-medium text-green-700 dark:text-white">Question <span id="current-question"></span> of <span id="quiz-total-questions"></span></span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                    <div id="progress" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
                 </div>
             </div>
 
-            <div class="timer-container">
-                <button id="quiz-home-btn" class="quiz-home-btn">🏠</button>
-                <button id="pause-btn" class="pause-btn">⏸️</button>
-                Time: <span id="timer">00:00:00</span>
+            <div class="flex items-center ml-6">
+                <button id="quiz-home-btn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg">🏠</button>
+                <button id="pause-btn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-bold py-2 px-4 rounded-lg ml-2">⏸️</button>
+                <span class="text-lg font-semibold text-gray-800 dark:text-white ml-4" id="timer">00:00:00</span>
             </div>
         </div>
 
-        <div id="question-container" class="question-card">
-            <div id="question-text" class="question-text"></div>
-            <ul id="options" class="options"></ul>
-            <div id="feedback" class="feedback"></div>
+        <div id="question-container" class="mb-6">
+            <div id="question-text" class="text-xl font-semibold text-gray-800 dark:text-white mb-4"></div>
+            <ul id="options" class="space-y-4"></ul>
+            <div id="feedback" class="mt-4 p-4 rounded-md"></div>
         </div>
 
-        <div class="controls">
-            <button id="prev-btn" disabled>Previous</button>
-            <button id="next-btn" disabled>Next</button>
-            <button id="submit-btn" style="display: none;">Submit Quiz</button>
+        <div class="flex justify-between mt-6">
+            <button id="prev-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg disabled:opacity-50" disabled>Previous</button>
+            <button id="next-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50" disabled>Next</button>
+            <button id="submit-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg" style="display: none;">Submit Quiz</button>
         </div>
     </div>
 
     <!-- Results Screen - Initially Hidden -->
-    <div id="results-screen" class="results-screen" style="display: none;">
-        <h2>Quiz Results</h2>
-        <div class="results-content">
-            <div id="results-summary" class="results-summary">
-                <div class="score-container">
-                    <div class="score-label">Your Score:</div>
-                    <div id="final-score" class="final-score">0/150</div>
+    <div id="results-screen" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center max-w-4xl mx-auto" style="display: none;">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Quiz Results</h2>
+        <div class="flex flex-col md:flex-row gap-8 items-center mb-8">
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 flex-1">
+                <div class="mb-4">
+                    <div class="text-lg font-bold text-gray-800 dark:text-white">Your Score:</div>
+                    <div id="final-score" class="text-4xl font-bold text-green-500">0/150</div>
                 </div>
-                <div class="time-container">
-                    <div class="time-label">Time Taken:</div>
-                    <div id="final-time" class="final-time">00:00:00</div>
+                <div class="mb-4">
+                    <div class="text-lg font-bold text-gray-800 dark:text-white">Time Taken:</div>
+                    <div id="final-time" class="text-2xl font-semibold text-gray-800 dark:text-white">00:00:00</div>
                 </div>
-                <div class="details-container">
-                    <div class="details-label">Details:</div>
-                    <div id="attempted-count" class="detail">Attempted: 0</div>
-                    <div id="correct-count" class="detail">Correct Answers: 0</div>
-                    <div id="incorrect-count" class="detail">Incorrect Answers: 0</div>
-                    <div id="unattempted-count" class="detail">Unattempted: 0</div>
-                    <div id="percentage" class="detail">Percentage: 0%</div>
+                <div>
+                    <div class="text-lg font-bold text-gray-800 dark:text-white">Details:</div>
+                    <div id="attempted-count" class="text-gray-600 dark:text-gray-400">Attempted: 0</div>
+                    <div id="correct-count" class="text-gray-600 dark:text-gray-400">Correct Answers: 0</div>
+                    <div id="incorrect-count" class="text-gray-600 dark:text-gray-400">Incorrect Answers: 0</div>
+                    <div id="unattempted-count" class="text-gray-600 dark:text-gray-400">Unattempted: 0</div>
+                    <div id="percentage" class="text-gray-600 dark:text-gray-400">Percentage: 0%</div>
                 </div>
             </div>
-            <div class="pie-chart-container">
+            <div class="flex-shrink-0">
                 <canvas id="pie-chart" width="200" height="200"></canvas>
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #28a745;"></div>
-                        <span id="correct-legend">Correct: 0%</span>
+                <div class="mt-4 space-y-2">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full mr-2" style="background-color: #28a745;"></div>
+                        <span id="correct-legend" class="text-sm text-gray-600 dark:text-gray-400">Correct: 0%</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #dc3545;"></div>
-                        <span id="incorrect-legend">Incorrect: 0%</span>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full mr-2" style="background-color: #dc3545;"></div>
+                        <span id="incorrect-legend" class="text-sm text-gray-600 dark:text-gray-400">Incorrect: 0%</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: #6c757d;"></div>
-                        <span id="unanswered-legend">Unanswered: 0%</span>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full mr-2" style="background-color: #6c757d;"></div>
+                        <span id="unanswered-legend" class="text-sm text-gray-600 dark:text-gray-400">Unanswered: 0%</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="results-actions">
-            <button id="home-btn" class="home-btn">Home</button>
-            <button id="retake-btn" class="retake-btn">Retake Quiz</button>
-            <button id="review-incorrect-btn" class="review-btn">Review Incorrect Answers</button>
+        <div class="flex justify-center gap-4">
+            <button id="home-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-transform duration-200">Home</button>
+            <button id="retake-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-transform duration-200">Retake Quiz</button>
+            <button id="review-incorrect-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-transform duration-200">Review Incorrect Answers</button>
         </div>
     </div>
 
     <!-- Review Screen - Initially Hidden -->
-    <div id="review-screen" class="review-screen" style="display: none;">
-        <h2>Review Incorrect Answers</h2>
-        <div id="incorrect-questions-container" class="incorrect-questions-container"></div>
-        <button id="back-to-results-btn" class="back-btn">Back to Results</button>
+    <div id="review-screen" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-4xl mx-auto" style="display: none;">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Review Incorrect Answers</h2>
+        <div id="incorrect-questions-container" class="space-y-6"></div>
+        <button id="back-to-results-btn" class="mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg transform hover:scale-105 transition-transform duration-200">Back to Results</button>
     </div>
 
     <!-- Load scripts -->

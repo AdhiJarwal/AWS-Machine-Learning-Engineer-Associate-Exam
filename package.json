@@ -1,0 +1,19 @@
+{
+  "name": "aws-ml-quiz",
+  "version": "1.0.0",
+  "description": "AWS Machine Learning Quiz App",
+  "main": "index.html",
+  "scripts": {
+    "build:css": "tailwindcss build -i css/styles.css -o public/styles.css"
+  },
+  "keywords": [
+    "aws",
+    "machine-learning",
+    "quiz"
+  ],
+  "author": "Adhiraj Jarwal",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}
