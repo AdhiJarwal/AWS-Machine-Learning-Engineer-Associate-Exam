@@ -254,7 +254,7 @@ function displayQuestion(index) {
     
     // Add status indicator
     const statusIndicator = document.createElement('span');
-    statusIndicator.className = `ml-2 inline-block w-3 h-3 rounded-full ${answeredQuestions[index] ? 'bg-green-500' : 'bg-red-500'}`;
+    statusIndicator.className = `question-status ${answeredQuestions[index] ? 'answered' : 'unanswered'}`;
     statusIndicator.title = answeredQuestions[index] ? 'Question answered' : 'Question not answered';
     questionText.appendChild(statusIndicator);
 
@@ -273,8 +273,7 @@ function displayQuestion(index) {
     // Add multi-select indicator if needed
     if (isMultiSelect) {
         const indicator = document.createElement('div');
-        indicator.className = 'text-sm text-gray-500 dark:text-gray-400 font-bold mt-2';
-        indicator.textContent = '📝 Multiple answers required';
+        indicator.className = 'multi-select-indicator';
         questionContainer.appendChild(indicator);
     }
 
@@ -282,7 +281,7 @@ function displayQuestion(index) {
     question.options.forEach((option, optionIndex) => {
         const optionElement = document.createElement('li');
         optionElement.textContent = option;
-        optionElement.className = 'p-4 mb-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer transition-all duration-300 text-base hover:bg-green-200 dark:hover:bg-green-700 hover:text-white dark:hover:text-white hover:border-green-500 dark:hover:border-green-400 transform hover:-translate-y-1 hover:shadow-lg';
+        optionElement.className = 'option';
 
         // If this is a multi-select question, add checkbox indicator
         if (isMultiSelect) {
@@ -294,7 +293,7 @@ function displayQuestion(index) {
             // Add checkbox appearance
             if (!answeredQuestions[index]) {
                 const checkbox = document.createElement('span');
-                checkbox.className = 'mr-2 text-lg';
+                checkbox.className = 'checkbox';
                 checkbox.innerHTML = selectedAnswers[index].includes(optionIndex) ? '☑' : '☐';
                 optionElement.prepend(checkbox);
             }
@@ -302,10 +301,10 @@ function displayQuestion(index) {
 
         // Check if this option was previously selected
         if (!isMultiSelect && selectedAnswers[index] === optionIndex) {
-            optionElement.classList.add('bg-blue-200', 'dark:bg-blue-700', 'border-blue-500');
+            optionElement.classList.add('selected');
         } else if (isMultiSelect && Array.isArray(selectedAnswers[index]) &&
             selectedAnswers[index].includes(optionIndex)) {
-            optionElement.classList.add('bg-blue-200', 'dark:bg-blue-700', 'border-blue-500');
+            optionElement.classList.add('selected');
         }
 
         // Add event listener to option
@@ -320,26 +319,26 @@ function displayQuestion(index) {
                 if (selectedAnswers[index].includes(optionIndex)) {
                     // Remove from selection
                     selectedAnswers[index] = selectedAnswers[index].filter(i => i !== optionIndex);
-                    optionElement.classList.remove('bg-blue-200', 'dark:bg-blue-700', 'border-blue-500');
+                    optionElement.classList.remove('selected');
 
                     // Update checkbox
-                    const checkbox = optionElement.querySelector('.mr-2');
+                    const checkbox = optionElement.querySelector('.checkbox');
                     if (checkbox) checkbox.innerHTML = '☐';
                 } else {
                     // Add to selection
                     selectedAnswers[index].push(optionIndex);
-                    optionElement.classList.add('bg-blue-200', 'dark:bg-blue-700', 'border-blue-500');
+                    optionElement.classList.add('selected');
 
                     // Update checkbox
-                    const checkbox = optionElement.querySelector('.mr-2');
+                    const checkbox = optionElement.querySelector('.checkbox');
                     if (checkbox) checkbox.innerHTML = '☑';
                 }
             } else {
                 // Single select behavior - scope to current question only
-                optionsContainer.querySelectorAll('li').forEach(opt => {
-                    opt.classList.remove('bg-blue-200', 'dark:bg-blue-700', 'border-blue-500');
+                optionsContainer.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
                 });
-                optionElement.classList.add('bg-blue-200', 'dark:bg-blue-700', 'border-blue-500');
+                optionElement.classList.add('selected');
                 selectedAnswers[index] = optionIndex;
             }
 
@@ -361,20 +360,19 @@ function displayQuestion(index) {
         
         // Show correct/incorrect indicators only for submitted questions
         setTimeout(() => {
-            const options = optionsContainer.querySelectorAll('li');
+            const options = optionsContainer.querySelectorAll('.option');
             options.forEach((opt, optIndex) => {
                 if (isMultiSelect) {
                     if (question.rightAnswer.includes(question.options[optIndex])) {
-                        opt.classList.add('bg-green-500', 'text-white', 'border-green-500');
+                        opt.classList.add('correct');
                     } else if (selectedAnswers[index] && selectedAnswers[index].includes(optIndex)) {
-                        opt.classList.add('bg-red-500', 'text-white', 'border-red-500');
+                        opt.classList.add('incorrect');
                     }
-                }
-                else {
+                } else {
                     if (question.options[optIndex] === question.rightAnswer) {
-                        opt.classList.add('bg-green-500', 'text-white', 'border-green-500');
+                        opt.classList.add('correct');
                     } else if (selectedAnswers[index] === optIndex) {
-                        opt.classList.add('bg-red-500', 'text-white', 'border-red-500');
+                        opt.classList.add('incorrect');
                     }
                 }
             });
@@ -389,12 +387,11 @@ function displayQuestion(index) {
 
         // Add "submit answer" button for this question
         const submitAnswerContainer = document.createElement('div');
-        submitAnswerContainer.className = 'text-center mt-6';
+        submitAnswerContainer.className = 'submit-answer-container';
 
         const submitAnswerBtn = document.createElement('button');
         submitAnswerBtn.id = 'submit-answer-btn';
         submitAnswerBtn.textContent = 'Submit Answer';
-        submitAnswerBtn.className = 'bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50';
 
         // Initialize button state based on selections
         if (isMultiSelect) {
@@ -451,10 +448,10 @@ function showFeedback(questionIndex) {
 
     if (correct) {
         feedbackContainer.textContent = "Correct! You nailed it!";
-        feedbackContainer.className = "p-4 rounded-md bg-green-100 border-2 border-green-500 text-green-700 font-bold text-center";
+        feedbackContainer.className = "feedback correct";
     } else {
         feedbackContainer.textContent = "Incorrect, better luck next time.";
-        feedbackContainer.className = "p-4 rounded-md bg-red-100 border-2 border-red-500 text-red-700 font-bold text-center";
+        feedbackContainer.className = "feedback incorrect";
     }
 
     feedbackContainer.style.display = "block";
@@ -465,35 +462,35 @@ function displayIncorrectQuestions() {
     container.innerHTML = '';
 
     if (incorrectAnswers.length === 0) {
-        container.innerHTML = '<p class="text-center text-lg text-green-500">🎉 Great job! You got all questions correct!</p>';
+        container.innerHTML = '<p class="no-incorrect">🎉 Great job! You got all questions correct!</p>';
         return;
     }
 
     incorrectAnswers.forEach((item, index) => {
         const questionDiv = document.createElement('div');
-        questionDiv.className = 'bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6 shadow-md';
+        questionDiv.className = 'incorrect-question-item';
         
         const isMultiSelect = Array.isArray(item.correctAnswer);
         
         questionDiv.innerHTML = `
-            <div class="font-bold text-green-500 text-sm mb-2">Question ${item.questionIndex + 1}</div>
-            <div class="font-bold text-gray-800 dark:text-white mb-4">${item.question.question}</div>
+            <div class="question-number">Question ${item.questionIndex + 1}</div>
+            <div class="question-text-review">${item.question.question}</div>
             
-            <div class="space-y-3">
-                <div class="bg-red-100 border-l-4 border-red-500 p-3 rounded-md">
+            <div class="answer-section">
+                <div class="your-answer">
                     <strong>Your Answer:</strong>
-                    <span class="text-red-700 font-medium">${
+                    <span class="incorrect-answer">${
                         isMultiSelect ? 
                             (Array.isArray(item.selectedAnswer) ? item.selectedAnswer.join(', ') : 'No answer selected') :
                             (item.selectedAnswer || 'No answer selected')
                     }</span>
                 </div>
                 
-                <div class="bg-green-100 border-l-4 border-green-500 p-3 rounded-md">
+                <div class="correct-answer">
                     <strong>Correct Answer:</strong>
-                    <span class="text-green-700 font-medium">${
+                    <span class="right-answer">${
                         isMultiSelect ? 
-                            item.correctAnswer.join(', ') :
+                            item.correctAnswer.join(', ') : 
                             item.correctAnswer
                     }</span>
                 </div>
@@ -503,7 +500,6 @@ function displayIncorrectQuestions() {
         container.appendChild(questionDiv);
     });
 }
-
 function checkAnswer(questionIndex, selectedOptionIndex) {
     const question = shuffledQuizData[questionIndex];
     const selectedOption = question.options[selectedOptionIndex];
@@ -702,7 +698,6 @@ function stopTimer() {
 
 function togglePause() {
     isPaused = !isPaused;
-    const pauseOverlay = document.getElementById('pause-overlay');
 
     if (isPaused) {
         // Pause the timer
@@ -754,6 +749,7 @@ function togglePause() {
         updateButtonStates();
 
         // Remove pause overlay
+        const pauseOverlay = document.getElementById('pause-overlay');
         if (pauseOverlay) pauseOverlay.remove();
     }
 }
